@@ -20,12 +20,12 @@ dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(DYNAMODB_TABLE)
 
 def extract_plain_text(prop):
-    """Safely extract plain text from title or rich_text fields."""
+    """Extract plain_text from title or rich_text fields."""
     if prop.get("type") == "title":
-        return "".join(t["plain_text"] for t in prop["title"])
+        return "".join(t.get("plain_text", "") for t in prop.get("title", []))
     if prop.get("type") == "rich_text":
-        return "".join(t["plain_text"] for t in prop["rich_text"])
-    return None
+        return "".join(t.get("plain_text", "") for t in prop.get("rich_text", []))
+    return ""
 
 def fetch_notion_pages():
     results = []
@@ -57,11 +57,9 @@ def sync_to_dynamodb(pages):
             continue
 
         item = {
-            "SellerId": seller_id,
-            "RockstarId": extract_plain_text(props.get("RockstarId", {})) or "",
-            "RockstarMpId": extract_plain_text(props.get("RockstarMpId", {})) or "",
-            "NotionPageId": page.get("id"),
-            "NotionURL": page.get("url"),
+            "RockstarSellerId": seller_id,
+            "RockstarId": extract_plain_text(props.get("RockstarId", {})),
+            "RockstarMpId": extract_plain_text(props.get("RockstarMpId", {})),
         }
 
         try:
