@@ -2,12 +2,12 @@ import os
 import boto3
 import requests
 
-# 🔐 Load from environment or set directly
+# Load from environment or set directly
 NOTION_TOKEN = os.getenv("NOTION_TOKEN", "YOUR_NOTION_INTEGRATION_TOKEN")
 NOTION_DATABASE_ID = "YOUR_NOTION_DATABASE_ID"
 DYNAMODB_TABLE = "Rockstar"
 
-# 🧾 Notion API endpoint
+# Notion API endpoint
 NOTION_API_URL = f"https://api.notion.com/v1/databases/{NOTION_DATABASE_ID}/query"
 HEADERS = {
     "Authorization": f"Bearer {NOTION_TOKEN}",
@@ -15,7 +15,7 @@ HEADERS = {
     "Content-Type": "application/json"
 }
 
-# 📦 AWS DynamoDB client
+# AWS DynamoDB client
 dynamodb = boto3.resource("dynamodb")
 table = dynamodb.Table(DYNAMODB_TABLE)
 
@@ -53,7 +53,7 @@ def sync_to_dynamodb(pages):
         seller_id = extract_plain_text(props.get("RockstarSellerId", {}))
 
         if not seller_id:
-            print(f"❌ Skipping page {page['id']} (missing RockstarSellerId)")
+            print(f" Skipping page {page['id']} (missing RockstarSellerId)")
             continue
 
         item = {
@@ -64,9 +64,9 @@ def sync_to_dynamodb(pages):
 
         try:
             table.put_item(Item=item)
-            print(f"✅ Inserted: {seller_id}")
+            print(f" Inserted: {seller_id}")
         except Exception as e:
-            print(f"❌ Error inserting {seller_id}: {e}")
+            print(f" Error inserting {seller_id}: {e}")
 
 if __name__ == "__main__":
     notion_pages = fetch_notion_pages()
